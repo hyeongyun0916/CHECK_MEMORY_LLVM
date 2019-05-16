@@ -7,9 +7,15 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/IR/Module.h"
+#include "../../pass/runtime/loaop.hpp"
+// #include <vector>
 using namespace llvm;
+using namespace std;
+
+// vector<Module*> moduleVector;
 
 namespace {
+  // vector<Module*> moduleVector;
   struct IntcheckPass : public FunctionPass {
     static char ID;
     LLVMContext *C;
@@ -20,33 +26,46 @@ namespace {
     IntcheckPass() : FunctionPass(ID) {}
 
     bool doInitialization(Module &M) {
+	// moduleVector.push_back(&M);
+	// errs() << "Module:" << moduleVector.size() << "\n";
       C = &(M.getContext());
+errs() << C << "\n";
       VoidTy = Type::getVoidTy(*C);
       Int32Ty = Type::getInt32Ty(*C);
-      logFunc = M.getOrInsertFunction("logop", VoidTy, Int32Ty, NULL);
+      logFunc = M.getOrInsertFunction("_Z5logopiii", Int32Ty, Int32Ty,Int32Ty,Int32Ty, NULL);
       return true;
-    }
-
-    bool shouldCheckOverflow(Value *I, int depth) {
-      // TODO: implement simple dataflow analysis to see if the computed data is
-      // flowing into malloc().
-      return true;
-    }
-
-    Value* getLineNum(Instruction *I) {
-      const DebugLoc *debugLoc = &I->getDebugLoc();
-
-      if (debugLoc)
-        return ConstantInt::get(Int32Ty, debugLoc->getLine());
-      return ConstantInt::get(Int32Ty, -1);
     }
 
     virtual bool runOnFunction(Function &F) {
       bool res = false;
-
+      // errs() << F << "\n";
       for (auto &B : F) {
         for (auto &I : B) {
+          if(AllocaInst *allocInst = dyn_cast<AllocaInst>(&I)){
+            PointerType *p = allocInst->getType();
+            if (p->getElementType()->isPointerTy()) {
+              errs() << I << "\t" << *(p->getElementType()) << "\n";
+            }
+            else if(p->getElementType()->isArrayTy()){
+              Value* v = allocInst->getOperand(0);
+              const DataLayout &DL = I.getModule()->getDataLayout();
+              // *TypeSize = DL.getTypeStoreSizeInBits(Ty);
+              
+              errs() << I << "\n"
+              << I.getName()
+              << "\t" << (allocInst->getAllocatedType()->getArrayNumElements())
+              << "\t" << DL.getTypeStoreSizeInBits(allocInst->getAllocatedType()->getArrayElementType())
+              << "\t" <<*(allocInst->getAllocatedType()->getArrayElementType()) << "\n\n";
+              IRBuilder<> builder(allocInst);
+              builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
+              v = dyn_cast<Value>(&I);
+              Value* args[] = {ConstantInt::get(Int32Ty, -1), ConstantInt::get(Int32Ty, -1), ConstantInt::get(Int32Ty, -1)};
+              builder.CreateCall(logFunc, args);
+              
+            }
+          }
           if (auto *op = dyn_cast<BinaryOperator>(&I)) {
+            /*
             // TODO: Implement the shouldCheckOverflow() function.
             if (!shouldCheckOverflow(&I, 0))
               continue;
@@ -60,12 +79,14 @@ namespace {
             Value* args[] = {op, getLineNum(&I)};
             builder.CreateCall(logFunc, args);
             res |= true;
+            */
           }
         }
       }
       return res;
     }
   };
+  // RegisterPass<IntcheckPass> X("hello", "Hello World Pass");
 }
 
 char IntcheckPass::ID = 0;
