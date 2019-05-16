@@ -11,21 +11,22 @@ int main(int argc, char **argv) {
   struct temp *A;
   double **B;
   unsigned char **q;
-  float *str = new float[6];
   */
+  float *fp = new float[6];
+  // fp[0] = 0.2;
 
   // *str = 'c';
   // delete[] str;
   // *str = 'b';
   // cout << *str << endl;
-  float f[3];
-  f[0] = 0.1;
-  char x[5];
+  float fa[3];
+  // fa[0] = 0.1;
+  char ca[5];
   // logop(1);
-  x[0] = 'a';
+  ca[0] = 0xfff;
   // x[1] = 'b';
   // delete[] x;
-  // cout << x[0] << endl;
+  cout << ca[0] << endl;
   // printf("%p\t%c\n", x, *(x+1));
   /*
   char b[10];

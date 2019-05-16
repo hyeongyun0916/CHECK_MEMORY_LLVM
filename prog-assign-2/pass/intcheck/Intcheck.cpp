@@ -67,6 +67,12 @@ struct IntcheckPass : public FunctionPass {
             builder.CreateCall(logFunc, args);
           }
         }
+        if (StoreInst *storeInst = dyn_cast<StoreInst>(&I)) {
+          errs() << "storeInst: " << I << "\n";
+        }
+        if (LoadInst *loadInst = dyn_cast<LoadInst>(&I)) {
+          errs() << "loadInst: " << I << "\n";
+        }
         if (auto *op = dyn_cast<BinaryOperator>(&I)) {
           /*
           // TODO: Implement the shouldCheckOverflow() function.
