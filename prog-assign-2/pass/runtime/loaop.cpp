@@ -1,7 +1,6 @@
-#include "loaop.hpp"
 #include <iostream>
-#include <vector>
 #include <tuple>
+#include <vector>
 using namespace std;
 
 struct Node {
@@ -14,6 +13,7 @@ struct Node {
 };
 
 vector<Node> memorys;
+extern "C" {
 
 bool isPossibleInsert(bool isStart, int pos) {
   auto it = lower_bound(memorys.begin(), memorys.end(), Node(pos, 0));
@@ -76,10 +76,10 @@ bool erase(int pos) {
   }
 }
 
-
 // TODO: Change function prototype if necessary.
 int logop(int type, int pos, int size) {
   cout << type << " pos: " << pos << "size: " << size << endl;
   // TODO: Produce warning if the integer overflow is found.
   return 0;
+}
 }

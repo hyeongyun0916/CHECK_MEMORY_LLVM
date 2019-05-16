@@ -1,8 +1,5 @@
 #include <iostream>
-#include "../../pass/runtime/loaop.hpp"
 using namespace std;
-
-// extern int logop(int);
 
 struct Temp {
   int i;

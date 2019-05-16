@@ -7,37 +7,35 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/IR/Module.h"
-#include "../../pass/runtime/loaop.hpp"
-// #include <vector>
 using namespace llvm;
 using namespace std;
 
-// vector<Module*> moduleVector;
-
 namespace {
-  // vector<Module*> moduleVector;
   struct IntcheckPass : public FunctionPass {
     static char ID;
     LLVMContext *C;
     Constant *logFunc;
     Type *VoidTy;
     Type *Int32Ty;
+    bool isLogOp;
 
     IntcheckPass() : FunctionPass(ID) {}
 
     bool doInitialization(Module &M) {
-	// moduleVector.push_back(&M);
-	// errs() << "Module:" << moduleVector.size() << "\n";
       C = &(M.getContext());
-errs() << C << "\n";
+      // errs() << M.getModuleIdentifier() << "\n";
+      isLogOp = M.getModuleIdentifier().find("loaop.cpp") != string::npos;
       VoidTy = Type::getVoidTy(*C);
       Int32Ty = Type::getInt32Ty(*C);
-      logFunc = M.getOrInsertFunction("_Z5logopiii", Int32Ty, Int32Ty,Int32Ty,Int32Ty, NULL);
+      logFunc = M.getOrInsertFunction("logop", Int32Ty, Int32Ty,Int32Ty,Int32Ty, NULL);
       return true;
     }
 
     virtual bool runOnFunction(Function &F) {
       bool res = false;
+      if (isLogOp) {
+        return res;
+      }
       // errs() << F << "\n";
       for (auto &B : F) {
         for (auto &I : B) {

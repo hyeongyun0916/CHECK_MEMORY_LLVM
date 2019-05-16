@@ -1,1 +1,0 @@
-int logop(int res);
